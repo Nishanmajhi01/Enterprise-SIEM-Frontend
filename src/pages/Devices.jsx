@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { motion } from "framer-motion";
+
 
 
 const DEVICE_TYPES = ["WINDOWS", "LINUX", "FIREWALL", "SERVER", "ROUTER", "APPLICATION"];
@@ -39,7 +39,7 @@ export default function Devices(){
 
         } catch (err) {
 
-            console.log(err);
+            setError(err.response?.data?.message || "Unable to load or update devices.");
 
         }
 
@@ -182,11 +182,11 @@ export default function Devices(){
             )}
 
 
-            <motion.form
+            <form
 
                 onSubmit={handleCreate}
 
-                whileHover={{ scale: 1.01 }}
+                
 
                 className="
                 bg-black/40
@@ -269,7 +269,7 @@ export default function Devices(){
                     <p className="md:col-span-5 text-red-400 text-sm">{error}</p>
                 )}
 
-            </motion.form>
+            </form>
 
 
             <div className="
@@ -312,7 +312,7 @@ export default function Devices(){
                                 <td className="p-4">{device.ipAddress}</td>
                                 <td className="p-4">
                                     <button
-                                        onClick={() => handleToggleStatus(device)}
+                                        onClick={() => { if(window.confirm(`Change ingestion status for ${device.name}?`)) handleToggleStatus(device); }}
                                         className={
                                             device.status === "ACTIVE"
                                                 ? "text-green-400"
@@ -329,7 +329,7 @@ export default function Devices(){
                                 </td>
                                 <td className="p-4">
                                     <button
-                                        onClick={() => handleRegenerate(device.id)}
+                                        onClick={() => { if(window.confirm(`Regenerate the API key for ${device.name}? The existing collector key will stop working until updated.`)) handleRegenerate(device.id); }}
                                         className="text-cyan-400 hover:text-cyan-300 text-sm"
                                     >
                                         Regenerate Key
