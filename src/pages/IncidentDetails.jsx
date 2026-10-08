@@ -215,7 +215,7 @@ font-bold
 text-cyan-400
 ">
 
-🚨 Incident Investigation
+Incident Investigation
 
 </h1>
 
@@ -321,7 +321,7 @@ py-2
 rounded
 "
 
-onClick={()=>updateStatus("CONTAINED")}
+onClick={()=>{ if(window.confirm("Change incident status to CONTAINED? This only updates case status; it does not perform network isolation.")) updateStatus("CONTAINED"); }}
 
 >
 
@@ -772,7 +772,7 @@ rounded
 ml-2
 "
 
-onClick={containIncident}
+onClick={() => { if(containAction && target && window.confirm(`Execute ${containAction} against ${target}? This may change firewall rules.`)) containIncident(); }}
 
 >
 
@@ -802,7 +802,7 @@ rounded-lg
 >
 
 <p className="text-green-400 font-bold text-lg">
-Automated Response Executed
+Recorded Response Action
 </p>
 
 <p className="mt-2">
@@ -830,7 +830,7 @@ action.status === "SUCCESS"
 
 <p>
 <b>Simulated:</b>{" "}
-{action.details?.simulated === false ? "No - Real Action" : "Yes"}
+{action.details?.simulated === false ? "No — Real action" : action.details?.simulated === true ? "Yes — Simulation" : "Unknown"}
 </p>
 
 <p>
