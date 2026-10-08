@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { motion } from "framer-motion";
+
 import MitreMatrix from "../components/MitreMatrix";
 
 
 export default function ThreatIntel(){
 
-const [threats,setThreats]=useState([]);
+const [threats,setThreats]=useState([]);\nconst [error,setError]=useState("");
 
 
 
@@ -26,7 +26,7 @@ setThreats(
 
 .catch(err=>{
 
-console.log(err);
+setError(err.response?.data?.message || "Unable to load threat intelligence.");
 
 });
 
@@ -47,7 +47,7 @@ text-cyan-400
 mb-8
 ">
 
-🌐 Threat Intelligence Center
+Threat Intelligence
 
 </h1>
 
@@ -64,7 +64,7 @@ gap-6
 threats.map((threat,index)=>(
 
 
-<motion.div
+<div
 
 key={index}
 
@@ -181,7 +181,7 @@ font-bold
 </div>
 
 
-</motion.div>
+</div>
 
 
 ))
