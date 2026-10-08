@@ -107,7 +107,7 @@ text-red-400
 font-bold
 ">
 
-{threat.severity || "HIGH"}
+{threat.severity || "Not classified"}
 
 </span>
 
@@ -129,7 +129,7 @@ text-gray-300
 
 <span className="text-cyan-300">
 
-{threat.mitreTechnique || "T1110"}
+{threat.mitreTechnique || "Not mapped"}
 
 </span>
 
@@ -143,7 +143,7 @@ text-gray-300
 
 <span className="text-purple-300">
 
-{threat.tactic || "Credential Access"}
+{threat.tactic || "Not mapped"}
 
 </span>
 
@@ -171,7 +171,7 @@ text-2xl
 font-bold
 ">
 
-{threat.riskScore || 0}
+{threat.riskScore ?? "Not scored"}
 
 </span>
 
