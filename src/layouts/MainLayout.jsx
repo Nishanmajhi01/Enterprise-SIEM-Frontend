@@ -7,6 +7,32 @@ const groups = [
   { title: "RESPONSE & ADMIN", links: [["Playbooks", "/playbooks", "⚙"], ["Log Sources", "/devices", "▣"]] }
 ];
 const css = `
+/* Unified enterprise SOC styling for existing functional pages */
+.soc-main>div{min-width:0}
+.soc-main h1{font-size:30px!important;color:#eaf3ff!important;margin:0 0 26px!important;line-height:1.25}
+.soc-main h2{color:#e8f1fc}
+.soc-main .bg-black\/40,.soc-main .bg-white\/10,.soc-main .bg-white\/5{background:#101b2b!important;backdrop-filter:none!important}
+.soc-main .border-cyan-400\/30,.soc-main .border-white\/20,.soc-main .border-white\/10{border-color:#293c55!important}
+.soc-main .rounded-2xl,.soc-main .rounded-xl{border-radius:12px!important}
+.soc-main .shadow-xl{box-shadow:none!important}
+.soc-main .text-cyan-400,.soc-main .text-cyan-300{color:#75d7e2!important}
+.soc-main .text-gray-400,.soc-main .text-gray-300{color:#9eb0c7!important}
+.soc-main input,.soc-main select,.soc-main textarea{background:#0b1626!important;color:#e8f1ff!important;border:1px solid #344760!important;border-radius:8px!important;min-height:42px}
+.soc-main input:focus,.soc-main select:focus,.soc-main textarea:focus{outline:2px solid #3d9daa!important;outline-offset:1px}
+.soc-main input::placeholder{color:#7287a3}
+.soc-main button{cursor:pointer}
+.soc-main table{border-collapse:collapse;min-width:720px;width:100%;font-size:13px}
+.soc-main table th{background:#15243a;color:#9eb4cd;text-transform:uppercase;letter-spacing:.06em;font-size:11px;font-weight:750}
+.soc-main table td{color:#d8e4f2}
+.soc-main table tr{border-bottom:1px solid #29384e}
+.soc-main table tbody tr:hover{background:#17273b}
+.soc-main table th,.soc-main table td{padding:14px!important;text-align:left}
+.soc-main .overflow-hidden:has(table){overflow-x:auto!important}
+.soc-main .grid-cols-3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))!important}
+.soc-main .grid-cols-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))!important}
+.soc-main .bg-red-500\/20{background:#40252f!important}
+@media(max-width:650px){.soc-main h1{font-size:25px!important}.soc-main .grid-cols-2,.soc-main .grid-cols-3{grid-template-columns:1fr!important}}
+
 .soc-shell{min-height:100vh;background:#080e19;color:#e8eef8;font-family:Inter,ui-sans-serif,system-ui,sans-serif;display:flex}
 .soc-shell *{box-sizing:border-box}
 .soc-sidebar{width:252px;flex:0 0 252px;background:#0d1625;border-right:1px solid #233148;min-height:100vh;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:30}
