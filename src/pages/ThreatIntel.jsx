@@ -6,7 +6,8 @@ import MitreMatrix from "../components/MitreMatrix";
 
 export default function ThreatIntel(){
 
-const [threats,setThreats]=useState([]);\nconst [error,setError]=useState("");
+const [threats,setThreats]=useState([]);
+const [error,setError]=useState("");
 
 
 
