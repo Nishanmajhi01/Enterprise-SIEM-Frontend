@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { motion } from "framer-motion";
+
 
 
 const IOC_TYPES = ["IP", "DOMAIN", "URL", "HASH", "EMAIL"];
@@ -40,7 +40,7 @@ export default function IOC(){
 
         } catch (err) {
 
-            console.log(err);
+            setError(err.response?.data?.message || "Unable to load IOC data.");
 
         }
 
@@ -129,18 +129,19 @@ export default function IOC(){
             text-cyan-400
             ">
 
-                🛰 IOC Management
+                IOC Database
 
             </h1>
 
 
+            <p className="text-gray-400 mb-6">Manage active indicators of compromise and analyst-curated threat intelligence.</p>
             {/* ADD IOC FORM */}
 
-            <motion.form
+            <form
 
                 onSubmit={handleCreate}
 
-                whileHover={{ scale: 1.01 }}
+                
 
                 className="
                 bg-black/40
@@ -215,7 +216,7 @@ export default function IOC(){
                     <p className="md:col-span-5 text-red-400 text-sm">{error}</p>
                 )}
 
-            </motion.form>
+            </form>
 
 
             {/* SEARCH BAR */}
@@ -322,7 +323,7 @@ export default function IOC(){
                                 </td>
                                 <td className="p-4">
                                     <button
-                                        onClick={() => handleDelete(ioc.id)}
+                                        onClick={() => { if(window.confirm(`Delete IOC ${ioc.value}?`)) handleDelete(ioc.id); }}
                                         className="text-red-400 hover:text-red-300"
                                     >
                                         Delete
