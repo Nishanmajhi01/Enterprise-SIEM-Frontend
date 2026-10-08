@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { motion } from "framer-motion";
+
 
 
 const SEVERITIES = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
-const ACTIONS = ["BLOCK_IP", "ISOLATE_HOST", "DISABLE_ACCOUNT", "KILL_PROCESS"];
+const ACTIONS = ["BLOCK_IP", "ISOLATE_HOST", "DISABLE_ACCOUNT"];
 
 
 export default function Playbooks(){
@@ -39,7 +39,7 @@ export default function Playbooks(){
 
         } catch (err) {
 
-            console.log(err);
+            setError(err.response?.data?.message || "Playbook request failed.");
 
         }
 
@@ -106,16 +106,17 @@ export default function Playbooks(){
             text-cyan-400
             ">
 
-                🤖 Automated Response Playbooks
+                Response Playbooks
 
             </h1>
 
 
-            <motion.form
+            <p className="text-gray-400 mb-6">Configure detection-triggered response. BLOCK_IP uses the connected pfSense integration; ISOLATE_HOST and DISABLE_ACCOUNT are simulated.</p>
+            <form
 
                 onSubmit={handleCreate}
 
-                whileHover={{ scale: 1.01 }}
+                
 
                 className="
                 bg-black/40
@@ -202,7 +203,7 @@ export default function Playbooks(){
                     <p className="md:col-span-5 text-red-400 text-sm">{error}</p>
                 )}
 
-            </motion.form>
+            </form>
 
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -213,11 +214,11 @@ export default function Playbooks(){
 
                 {playbooks.map(playbook => (
 
-                    <motion.div
+                    <div
 
                         key={playbook.id}
 
-                        whileHover={{ scale: 1.02 }}
+                        
 
                         className="
                         bg-black/40
@@ -237,7 +238,7 @@ export default function Playbooks(){
                             </h2>
 
                             <button
-                                onClick={() => handleToggle(playbook.id)}
+                                onClick={() => { if(window.confirm(`${playbook.enabled ? "Disable" : "Enable"} playbook ${playbook.name}?`)) handleToggle(playbook.id); }}
                                 className={
                                     playbook.enabled
                                         ? "px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-400 border border-green-400/40"
@@ -255,11 +256,11 @@ export default function Playbooks(){
 
                             <p>⚠ Severity: <span className="text-purple-300">{playbook.severity}</span></p>
 
-                            <p>⚡ Action: <span className="text-red-400 font-bold">{playbook.action}</span></p>
+                            <p>⚡ Action: <span className="text-red-400 font-bold">{playbook.action}</span> <span className="text-xs text-gray-400">({playbook.action === "BLOCK_IP" ? "pfSense live block" : "Simulated action"})</span></p>
 
                         </div>
 
-                    </motion.div>
+                    </div>
 
                 ))}
 
