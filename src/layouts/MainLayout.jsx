@@ -69,7 +69,7 @@ export default function MainLayout({ children }) {
       <div className="soc-sidebar-foot">SIEM Operations Console · v1.0</div>
     </aside>
     <div className="soc-main-wrap">
-      <header className="soc-topbar"><div style={{display:"flex",alignItems:"center",gap:12}}><button className="soc-mobile-toggle" aria-label="Toggle navigation" onClick={()=>setMenuOpen(v=>!v)}>☰</button><div><div className="soc-topbar-title">{page?.[0] || "Investigation Workspace"}</div><div className="soc-topbar-sub">Security operations / {page?.[0] || "Investigation"}</div></div></div><div className="soc-topbar-right"><WorkspaceSelector onRoleChange={setRole} /><span className="soc-environment">● {role || "SOC"} Workspace</span><button className="soc-signout" onClick={signOut}>Sign out ↗</button></div></header>
+      <header className="soc-topbar"><div style={{display:"flex",alignItems:"center",gap:12}}><button className="soc-mobile-toggle" aria-label="Toggle navigation" onClick={()=>setMenuOpen(v=>!v)}>☰</button><div><div className="soc-topbar-title">{page?.[0] || "Investigation Workspace"}</div><div className="soc-topbar-sub">Security operations / {page?.[0] || "Investigation"}</div></div></div><div className="soc-topbar-right"><WorkspaceSelector onRoleChange={setRole} /><button className="soc-signout" onClick={()=>navigate("/change-password")}>Password</button><span className="soc-environment">● {role || "SOC"} Workspace</span><button className="soc-signout" onClick={signOut}>Sign out ↗</button></div></header>
       <main className="soc-main">{children}</main>
     </div>
   </div>;
