@@ -6,6 +6,18 @@ export default function IncidentDetails() {
   const { id } = useParams();
 
   const [incident, setIncident] = useState(null);
+  const [workspaceRole, setWorkspaceRole] = useState(null);
+  const canManage = workspaceRole === "ADMIN" || workspaceRole === "ANALYST";
+  useEffect(() => {
+    let active = true;
+    api.get("/auth/workspaces").then(({data}) => {
+      if (!active) return;
+      const id = localStorage.getItem("siem.workspaceId");
+      setWorkspaceRole(data?.workspaces?.find(w => w.id === id)?.role || null);
+    }).catch(() => { if (active) setWorkspaceRole(null); });
+    return () => { active = false; };
+  }, []);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -46,6 +58,7 @@ export default function IncidentDetails() {
   // ==========================================
 
   const updateStatus = async (status) => {
+    if (!canManage) return;
     if (isClosed) return;
 
     try {
@@ -68,6 +81,7 @@ export default function IncidentDetails() {
   // ==========================================
 
   const assignIncident = async () => {
+    if (!canManage) return;
     if (isClosed) return;
 
     if (!assignedUser.trim()) {
@@ -97,6 +111,7 @@ export default function IncidentDetails() {
   // ==========================================
 
   const containIncident = async () => {
+    if (!canManage) return;
     if (isClosed) return;
 
     if (!containAction || !target.trim()) {
@@ -137,6 +152,7 @@ export default function IncidentDetails() {
   // ==========================================
 
   const manualContainIncident = async () => {
+    if (!canManage) return;
     if (incident?.status !== "INVESTIGATING") {
       alert("Manual containment requires an INVESTIGATING incident.");
       return;
@@ -195,6 +211,7 @@ export default function IncidentDetails() {
   // ==========================================
 
   const resolveIncident = async () => {
+    if (!canManage) return;
     if (incident?.status !== "CONTAINED") {
       alert("Incident must be CONTAINED before resolution.");
       return;
@@ -390,7 +407,7 @@ export default function IncidentDetails() {
             INCIDENT LIFECYCLE ACTIONS
         ================================== */}
 
-        {!isClosed && (
+        {canManage && !isClosed && (
 
           <div className="mt-6 border-t border-white/20 pt-5">
 
@@ -693,7 +710,7 @@ export default function IncidentDetails() {
           Response Actions
         </h2>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        {canManage && <div className="mt-4 flex flex-wrap items-center gap-3">
 
           {/* ACTION SELECTOR */}
 
@@ -761,7 +778,7 @@ export default function IncidentDetails() {
               : "Execute Containment"}
           </button>
 
-        </div>
+        </div>}
 
         {/* ==================================
             RESPONSE ACTION HISTORY
