@@ -13,6 +13,7 @@ export default function Register() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
   if (localStorage.getItem("token")) return <Navigate to="/dashboard" replace />;
 
   async function submit(e) {
@@ -26,6 +27,10 @@ export default function Register() {
         accountType, username: username.trim(), organizationName: organizationName.trim(),
         email: email.trim(), password
       });
+      if (data?.verificationRequired) {
+        setVerificationSent(true);
+        return;
+      }
       if (!data?.token || !data?.workspace?.id) throw new Error("Incomplete signup response");
       localStorage.setItem("siem.workspaceId", data.workspace.id);
       saveToken(data.token);
@@ -38,6 +43,7 @@ export default function Register() {
   const field = { width: "100%", boxSizing: "border-box", padding: "13px 14px", background: "#142138", border: "1px solid #38516a", borderRadius: 9, color: "#f2f7ff", fontSize: 14 };
   const label = { display: "block", fontSize: 13, fontWeight: 650, marginBottom: 7, color: "#c7d6e8" };
   const group = { marginBottom: 18 };
+  if (verificationSent) return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"#080d19",color:"#edf5ff",fontFamily:"system-ui",padding:24}}><section style={{maxWidth:480,background:"#101b30",padding:32,borderRadius:16}}><h1>Check your email</h1><p>We sent a verification link to your email address. Open the link to activate your account before signing in.</p><Link to="/login" style={{color:"#65d7dc"}}>Go to sign in</Link></section></main>;
   return <main style={{ minHeight: "100vh", background: "radial-gradient(circle at 10% 15%,#193451,#080d19 65%)", color: "#edf5ff", fontFamily: "Inter,system-ui,sans-serif", display: "grid", placeItems: "center", padding: 24 }}>
     <section style={{ width: "100%", maxWidth: 490, background: "#0d1729", border: "1px solid #29425c", borderRadius: 18, padding: "32px", boxSizing: "border-box" }}>
       <div style={{ color: "#6edce3", letterSpacing: 2, fontSize: 12, fontWeight: 800 }}>◇ ENTERPRISE SIEM</div>
