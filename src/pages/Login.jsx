@@ -115,6 +115,7 @@ export default function Login() {
             {error && <div className="siem-error" role="alert">{error}</div>}
             <button className="siem-submit" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in to console →"}</button>
           </form>
+          <p style={{textAlign:"center",color:"#9eafc8",fontSize:14,marginTop:20}}><Link to="/forgot-password" style={{color:"#71dce5",fontWeight:700}}>Forgot password?</Link></p>
           <p style={{textAlign:"center",color:"#9eafc8",fontSize:14,marginTop:20}}>New to Enterprise SIEM? <Link to="/register" style={{color:"#71dce5",fontWeight:700}}>Create account</Link></p>
           <div className="siem-auth-bottom"><strong>Restricted system.</strong> Access is limited to authorised users. Account access is managed by your SIEM administrator.</div>
         </div>
