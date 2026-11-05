@@ -6,7 +6,7 @@ import WorkspaceSelector from "../components/WorkspaceSelector";
 const groups = [
   { title: "MONITOR", links: [["Overview", "/dashboard", "◫"], ["Alert Center", "/alerts", "◉"], ["Incidents", "/incidents", "▤"]] },
   { title: "INTELLIGENCE", links: [["Threat Intelligence", "/threat-intel", "◎"], ["IOC Database", "/ioc", "◇"]] },
-  { title: "RESPONSE & ADMIN", links: [["Playbooks", "/playbooks", "⚙"], ["Log Sources", "/devices", "▣"]] }
+  { title: "RESPONSE & ADMIN", links: [["Playbooks", "/playbooks", "⚙"], ["Log Sources", "/devices", "▣"], ["Users", "/users", "♙"]] }
 ];
 const css = `
 /* Unified enterprise SOC styling for existing functional pages */
@@ -57,7 +57,7 @@ const css = `
 export default function MainLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const role = getSessionRole();
-  const visibleGroups = groups.map(group => ({ ...group, links: group.links.filter(([name]) => role === "ADMIN" || !["Playbooks", "Log Sources"].includes(name) || (role === "ANALYST" && name === "Playbooks")) })).filter(group => group.links.length);
+  const visibleGroups = groups.map(group => ({ ...group, links: group.links.filter(([name]) => role === "ADMIN" || !["Playbooks", "Log Sources", "Users"].includes(name) || (role === "ANALYST" && name === "Playbooks")) })).filter(group => group.links.length);
   const location = useLocation();
   const navigate = useNavigate();
   const page = visibleGroups.flatMap(group => group.links).find(([,path]) => location.pathname === path || (path === "/incidents" && location.pathname.startsWith("/incidents/")));
