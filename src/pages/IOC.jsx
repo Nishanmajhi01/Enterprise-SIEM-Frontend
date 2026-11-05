@@ -10,6 +10,18 @@ const CONFIDENCE_LEVELS = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 export default function IOC(){
 
     const [iocs, setIocs] = useState([]);
+    const [workspaceRole, setWorkspaceRole] = useState(null);
+    const canManage = workspaceRole === "ADMIN" || workspaceRole === "ANALYST";
+    useEffect(() => {
+      let active = true;
+      api.get("/auth/workspaces").then(({data}) => {
+        if (!active) return;
+        const id = localStorage.getItem("siem.workspaceId");
+        setWorkspaceRole(data?.workspaces?.find(w => w.id === id)?.role || null);
+      }).catch(() => { if (active) setWorkspaceRole(null); });
+      return () => { active = false; };
+    }, []);
+
     const [search, setSearch] = useState("");
     const [typeFilter, setTypeFilter] = useState("");
 
@@ -74,6 +86,7 @@ export default function IOC(){
     const handleCreate = async (e) => {
 
         e.preventDefault();
+        if (!canManage) return;
 
         setError("");
 
@@ -102,6 +115,7 @@ export default function IOC(){
 
 
     const handleDelete = async (id) => {
+        if (workspaceRole !== "ADMIN") return;
 
         try {
 
@@ -137,7 +151,7 @@ export default function IOC(){
             <p className="text-gray-400 mb-6">Manage active indicators of compromise and analyst-curated threat intelligence.</p>
             {/* ADD IOC FORM */}
 
-            <form
+            {canManage && <form
 
                 onSubmit={handleCreate}
 
@@ -216,7 +230,7 @@ export default function IOC(){
                     <p className="md:col-span-5 text-red-400 text-sm">{error}</p>
                 )}
 
-            </form>
+            </form>}
 
 
             {/* SEARCH BAR */}
@@ -322,12 +336,12 @@ export default function IOC(){
                                     {ioc.lastSeen ? new Date(ioc.lastSeen).toLocaleString() : "-"}
                                 </td>
                                 <td className="p-4">
-                                    <button
+                                    {workspaceRole === "ADMIN" && <button
                                         onClick={() => { if(window.confirm(`Delete IOC ${ioc.value}?`)) handleDelete(ioc.id); }}
                                         className="text-red-400 hover:text-red-300"
                                     >
                                         Delete
-                                    </button>
+                                    </button>}
                                 </td>
                             </tr>
                         ))}
