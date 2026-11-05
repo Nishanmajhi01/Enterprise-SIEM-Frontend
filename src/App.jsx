@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
+import AcceptInvitation from "./pages/AcceptInvitation";
 import { ForgotPassword, ResetPassword } from "./pages/PasswordRecovery";
 import Alerts from "./pages/Alerts";
 import Incidents from "./pages/Incident";
@@ -110,6 +111,7 @@ return (
 {/* LOGIN */}
 <Route path="/register" element={<Register />} />
 <Route path="/verify-email" element={<VerifyEmail />} />
+<Route path="/accept-invitation" element={<AcceptInvitation />} />
 <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password" element={<ResetPassword />} />
 
