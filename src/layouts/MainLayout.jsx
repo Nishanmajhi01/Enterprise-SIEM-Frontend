@@ -61,7 +61,7 @@ export default function MainLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const page = visibleGroups.flatMap(group => group.links).find(([,path]) => location.pathname === path || (path === "/incidents" && location.pathname.startsWith("/incidents/")));
-  function signOut(){ localStorage.removeItem("token"); navigate("/login",{replace:true}); }
+  function signOut(){ localStorage.removeItem("token"); localStorage.removeItem("siem.workspaceId"); navigate("/login",{replace:true}); }
   return <div className="soc-shell">
     <style>{css}</style>
     <aside className={`soc-sidebar ${menuOpen ? "open" : ""}`}>
