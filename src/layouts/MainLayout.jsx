@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { getSessionRole } from "../auth/sessionRole";
 
 const groups = [
   { title: "MONITOR", links: [["Overview", "/dashboard", "◫"], ["Alert Center", "/alerts", "◉"], ["Incidents", "/incidents", "▤"]] },
@@ -54,19 +55,21 @@ const css = `
 `;
 export default function MainLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const role = getSessionRole();
+  const visibleGroups = groups.map(group => ({ ...group, links: group.links.filter(([name]) => role === "ADMIN" || !["Playbooks", "Log Sources"].includes(name) || (role === "ANALYST" && name === "Playbooks")) })).filter(group => group.links.length);
   const location = useLocation();
   const navigate = useNavigate();
-  const page = groups.flatMap(group => group.links).find(([,path]) => location.pathname === path || (path === "/incidents" && location.pathname.startsWith("/incidents/")));
+  const page = visibleGroups.flatMap(group => group.links).find(([,path]) => location.pathname === path || (path === "/incidents" && location.pathname.startsWith("/incidents/")));
   function signOut(){ localStorage.removeItem("token"); navigate("/login",{replace:true}); }
   return <div className="soc-shell">
     <style>{css}</style>
     <aside className={`soc-sidebar ${menuOpen ? "open" : ""}`}>
       <div className="soc-brand"><span className="soc-brand-icon">◇</span><div><div className="soc-brand-name">ENTERPRISE SIEM</div><div className="soc-brand-sub">SECURITY OPERATIONS</div></div></div>
-      <nav className="soc-menu" aria-label="Main navigation">{groups.map(group=><div className="soc-group" key={group.title}><div className="soc-group-title">{group.title}</div>{group.links.map(([name,path,icon])=><NavLink key={path} to={path} onClick={()=>setMenuOpen(false)} className={({isActive})=>`soc-nav-link ${isActive ? "active" : ""}`}><span className="soc-nav-icon" aria-hidden="true">{icon}</span>{name}</NavLink>)}</div>)}</nav>
+      <nav className="soc-menu" aria-label="Main navigation">{visibleGroups.map(group=><div className="soc-group" key={group.title}><div className="soc-group-title">{group.title}</div>{group.links.map(([name,path,icon])=><NavLink key={path} to={path} onClick={()=>setMenuOpen(false)} className={({isActive})=>`soc-nav-link ${isActive ? "active" : ""}`}><span className="soc-nav-icon" aria-hidden="true">{icon}</span>{name}</NavLink>)}</div>)}</nav>
       <div className="soc-sidebar-foot">SIEM Operations Console · v1.0</div>
     </aside>
     <div className="soc-main-wrap">
-      <header className="soc-topbar"><div style={{display:"flex",alignItems:"center",gap:12}}><button className="soc-mobile-toggle" aria-label="Toggle navigation" onClick={()=>setMenuOpen(v=>!v)}>☰</button><div><div className="soc-topbar-title">{page?.[0] || "Investigation Workspace"}</div><div className="soc-topbar-sub">Security operations / {page?.[0] || "Investigation"}</div></div></div><div className="soc-topbar-right"><span className="soc-environment">● SOC Workspace</span><button className="soc-signout" onClick={signOut}>Sign out ↗</button></div></header>
+      <header className="soc-topbar"><div style={{display:"flex",alignItems:"center",gap:12}}><button className="soc-mobile-toggle" aria-label="Toggle navigation" onClick={()=>setMenuOpen(v=>!v)}>☰</button><div><div className="soc-topbar-title">{page?.[0] || "Investigation Workspace"}</div><div className="soc-topbar-sub">Security operations / {page?.[0] || "Investigation"}</div></div></div><div className="soc-topbar-right"><span className="soc-environment">● {role || "SOC"} Workspace</span><button className="soc-signout" onClick={signOut}>Sign out ↗</button></div></header>
       <main className="soc-main">{children}</main>
     </div>
   </div>;
