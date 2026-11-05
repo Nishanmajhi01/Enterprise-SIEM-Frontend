@@ -1,14 +1,19 @@
 import {useCallback,useEffect,useMemo,useState} from "react";
 import api from "../services/api";
 import socket from "../services/socket";
+import DateFilter, {matchesDateFilter, formatSydneyDate} from "../components/DateFilter";
 const panel={background:"#101b2b",border:"1px solid #293c55",borderRadius:12,padding:22};
 const input={background:"#0b1626",border:"1px solid #344760",borderRadius:8,padding:"11px 13px",color:"#eaf3ff"};
 const color={CRITICAL:"#ff8d99",HIGH:"#f6b67c",MEDIUM:"#f2d382",LOW:"#7bdacb"};
 export default function Alerts(){
  const [alerts,setAlerts]=useState([]),[search,setSearch]=useState(""),[severity,setSeverity]=useState("ALL"),[status,setStatus]=useState("ALL"),[error,setError]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(null);
+ const [dateMode,setDateMode]=useState("ALL");
+ const [singleDate,setSingleDate]=useState("");
+ const [startDate,setStartDate]=useState("");
+ const [endDate,setEndDate]=useState("");
  const load=useCallback(async()=>{try{const res=await api.get("/alerts");setAlerts(Array.isArray(res.data)?res.data:(res.data.alerts||[]));setError("");}catch(e){setError(e.response?.data?.error||e.response?.data?.message||"Unable to load alerts.");}finally{setLoading(false);}},[]);
  useEffect(()=>{load();const handler=a=>setAlerts(prev=>a?.id&&prev.some(x=>x.id===a.id)?prev:[a,...prev]);socket.on("security-alert",handler);return()=>socket.off("security-alert",handler);},[load]);
- const filtered=useMemo(()=>alerts.filter(a=>(severity==="ALL"||a.severity===severity)&&(status==="ALL"||a.status===status)&&[a.title,a.sourceIP,a.attackType,a.id].some(v=>String(v??"").toLowerCase().includes(search.toLowerCase()))),[alerts,search,severity,status]);
+ const filtered=useMemo(()=>alerts.filter(a=>(severity==="ALL"||a.severity===severity)&&(status==="ALL"||a.status===status)&&[a.title,a.sourceIP,a.attackType,a.id].some(v=>String(v??"").toLowerCase().includes(search.toLowerCase()))&&matchesDateFilter(a.createdAt,dateMode,singleDate,startDate,endDate)),[alerts,search,severity,status,dateMode,singleDate,startDate,endDate]);
  async function change(id,mode){setBusy(id);setError("");try{if(mode==="resolve")await api.patch(`/alerts/${id}/resolve`,{resolutionNote:"Resolved by SOC analyst"});else await api.patch(`/alerts/${id}/status`,{status:mode});await load();}catch(e){setError(e.response?.data?.message||e.response?.data?.error||"Alert update failed. Check your permissions and API route.");}finally{setBusy(null);}}
  const counts=[["Total Alerts",alerts.length],["Critical",alerts.filter(a=>a.severity==="CRITICAL").length],["High",alerts.filter(a=>a.severity==="HIGH").length],["Unresolved",alerts.filter(a=>a.status!=="RESOLVED").length]];
  return <div style={{display:"grid",gap:22}}>
@@ -16,5 +21,30 @@ export default function Alerts(){
  <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))",gap:12}}>{counts.map(([label,value])=><div style={panel} key={label}><div style={{color:"#8ea5bf",fontSize:12}}>{label}</div><strong style={{display:"block",fontSize:29,marginTop:12}}>{loading?"…":value}</strong></div>)}</div>
  {error&&<div role="alert" style={{padding:14,border:"1px solid #8c4753",borderRadius:9,color:"#ffc6cb",background:"#39222d"}}>{error}</div>}
  <section style={panel}><div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:20}}><input aria-label="Search alerts" placeholder="Search alert, IP or attack type" style={{...input,flex:"1 1 240px"}} value={search} onChange={e=>setSearch(e.target.value)}/><select aria-label="Filter severity" style={input} value={severity} onChange={e=>setSeverity(e.target.value)}>{["ALL","CRITICAL","HIGH","MEDIUM","LOW"].map(v=><option key={v}>{v}</option>)}</select><select aria-label="Filter status" style={input} value={status} onChange={e=>setStatus(e.target.value)}>{["ALL","OPEN","INVESTIGATING","RESOLVED"].map(v=><option key={v}>{v}</option>)}</select><button onClick={load} style={{...input,cursor:"pointer"}}>↻ Refresh</button></div>
- <div style={{overflowX:"auto"}}><table style={{width:"100%",minWidth:760,borderCollapse:"collapse",fontSize:13}}><thead><tr>{["ID / DETECTION","SEVERITY","SOURCE IP","STATUS","RISK","ACTIONS"].map(v=><th key={v} style={{textAlign:"left",padding:14,color:"#92a8c2",borderBottom:"1px solid #33445b",fontSize:11}}>{v}</th>)}</tr></thead><tbody>{filtered.map(a=><tr key={a.id} style={{borderBottom:"1px solid #29384c"}}><td style={{padding:14}}><div style={{color:"#eaf3ff",fontWeight:650}}>{a.title||a.attackType||"Security alert"}</div><small style={{color:"#8298b1"}}>#{a.id}</small></td><td style={{padding:14,color:color[a.severity]||"#b7c7d9",fontWeight:750}}>{a.severity||"—"}</td><td style={{padding:14,color:"#b8d0e6"}}>{a.sourceIP||"—"}</td><td style={{padding:14}}>{a.status||"—"}</td><td style={{padding:14}}>{a.riskScore??"—"}</td><td style={{padding:14}}>{a.status!=="RESOLVED"&&<button disabled={busy===a.id} onClick={()=>change(a.id,"resolve")} style={{...input,color:"#80e0d6",cursor:"pointer"}}>Resolve</button>}</td></tr>)}{!loading&&!filtered.length&&<tr><td colSpan={6} style={{padding:24,color:"#91a6c0",textAlign:"center"}}>No matching alerts found.</td></tr>}</tbody></table></div></section></div>;
+ <DateFilter
+      mode={dateMode}
+      setMode={setDateMode}
+      singleDate={singleDate}
+      setSingleDate={setSingleDate}
+      startDate={startDate}
+      setStartDate={setStartDate}
+      endDate={endDate}
+      setEndDate={setEndDate}
+    />
+    <button
+      style={{...input,cursor:"pointer",marginBottom:16}}
+      onClick={()=>{
+        setSearch("");
+        setSeverity("ALL");
+        setStatus("ALL");
+        setDateMode("ALL");
+        setSingleDate("");
+        setStartDate("");
+        setEndDate("");
+      }}
+    >Clear Filters</button>
+    <div style={{color:"#90a5be",fontSize:12,marginBottom:12}}>
+      Showing {filtered.length} of {alerts.length} alerts
+    </div>
+    <div style={{overflowX:"auto"}}><table style={{width:"100%",minWidth:760,borderCollapse:"collapse",fontSize:13}}><thead><tr>{["ID / DETECTION","SEVERITY","SOURCE IP","STATUS","RISK","CREATED DATE","ACTIONS"].map(v=><th key={v} style={{textAlign:"left",padding:14,color:"#92a8c2",borderBottom:"1px solid #33445b",fontSize:11}}>{v}</th>)}</tr></thead><tbody>{filtered.map(a=><tr key={a.id} style={{borderBottom:"1px solid #29384c"}}><td style={{padding:14}}><div style={{color:"#eaf3ff",fontWeight:650}}>{a.title||a.attackType||"Security alert"}</div><small style={{color:"#8298b1"}}>#{a.id}</small></td><td style={{padding:14,color:color[a.severity]||"#b7c7d9",fontWeight:750}}>{a.severity||"—"}</td><td style={{padding:14,color:"#b8d0e6"}}>{a.sourceIP||"—"}</td><td style={{padding:14}}>{a.status||"—"}</td><td style={{padding:14}}>{a.riskScore??"—"}</td><td style={{padding:14,whiteSpace:"nowrap"}}>{formatSydneyDate(a.createdAt)}</td><td style={{padding:14}}>{a.status!=="RESOLVED"&&<button disabled={busy===a.id} onClick={()=>change(a.id,"resolve")} style={{...input,color:"#80e0d6",cursor:"pointer"}}>Resolve</button>}</td></tr>)}{!loading&&!filtered.length&&<tr><td colSpan={7} style={{padding:24,color:"#91a6c0",textAlign:"center"}}>No matching alerts found.</td></tr>}</tbody></table></div></section></div>;
 }
