@@ -18,6 +18,7 @@ import IncidentDetails from "./pages/IncidentDetails";
 import IOC from "./pages/IOC";
 import Playbooks from "./pages/Playbooks";
 import Devices from "./pages/Devices";
+import Users from "./pages/Users";
 
 
 
@@ -343,6 +344,8 @@ element={
 
 
 
+
+<Route path="/users" element={<ProtectedLayout><Users /></ProtectedLayout>} />
 
 {/* UNKNOWN ROUTE */}
 
