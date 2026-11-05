@@ -8,6 +8,7 @@ export default function Users() {
   const [authorized, setAuthorized] = useState(false);
   const [form, setForm] = useState(empty);
   const [busy, setBusy] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -28,10 +29,15 @@ export default function Users() {
   async function create(event) {
     event.preventDefault();
     if (busy || !authorized) return;
+    if (form.password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setBusy(true); setError(""); setNotice("");
     try {
       await api.post("/auth/workspace-members", form);
       setForm(empty);
+      setConfirmPassword("");
       setNotice("Account created and assigned to this workspace.");
       await load();
     } catch (err) {
@@ -50,6 +56,7 @@ export default function Users() {
         <label>Username<input required minLength={3} maxLength={100} autoComplete="off" value={form.username} onChange={e=>setForm({...form,username:e.target.value})} style={{display:"block",width:"100%",marginTop:7,padding:10}} /></label>
         <label>Email<input required type="email" maxLength={254} autoComplete="off" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} style={{display:"block",width:"100%",marginTop:7,padding:10}} /></label>
         <label>Temporary password<input required type="password" minLength={12} maxLength={72} autoComplete="new-password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})} style={{display:"block",width:"100%",marginTop:7,padding:10}} /></label>
+        <label>Confirm temporary password<input required type="password" minLength={12} maxLength={72} autoComplete="new-password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} style={{display:"block",width:"100%",marginTop:7,padding:10}} /></label>
         <label>Workspace role<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})} style={{display:"block",width:"100%",marginTop:7,padding:10}}>
           <option value="VIEWER">Viewer</option><option value="ANALYST">Analyst</option><option value="ADMIN">Administrator</option>
         </select></label>
