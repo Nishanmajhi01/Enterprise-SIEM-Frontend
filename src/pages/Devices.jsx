@@ -9,6 +9,7 @@ const DEVICE_TYPES = ["WINDOWS", "LINUX", "FIREWALL", "SERVER", "ROUTER", "APPLI
 export default function Devices(){
 
     const [devices, setDevices] = useState([]);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     const [form, setForm] = useState({
         name: "",
@@ -25,6 +26,11 @@ export default function Devices(){
     useEffect(() => {
 
         fetchDevices();
+        api.get("/auth/workspaces").then(({data}) => {
+            const workspaceId = localStorage.getItem("siem.workspaceId");
+            const workspaces = Array.isArray(data?.workspaces) ? data.workspaces : [];
+            setIsAdmin(workspaces.find(w => w.id === workspaceId)?.role === "ADMIN");
+        }).catch(() => setIsAdmin(false));
 
     }, []);
 
@@ -49,6 +55,7 @@ export default function Devices(){
     const handleCreate = async (e) => {
 
         e.preventDefault();
+        if (!isAdmin) return;
 
         setError("");
 
@@ -58,7 +65,7 @@ export default function Devices(){
 
             setRevealedKey({
                 name: res.data.device.name,
-                apiKey: res.data.device.apiKey
+                apiKey: res.data.apiKey
             });
 
             setForm({
@@ -84,6 +91,7 @@ export default function Devices(){
 
     const handleToggleStatus = async (device) => {
 
+        if (!isAdmin) return;
         const nextStatus = device.status === "ACTIVE" ? "DISABLED" : "ACTIVE";
 
         try {
@@ -106,6 +114,7 @@ export default function Devices(){
 
 
     const handleRegenerate = async (id) => {
+        if (!isAdmin) return;
 
         try {
 
@@ -182,7 +191,7 @@ export default function Devices(){
             )}
 
 
-            <form
+            {isAdmin && <form
 
                 onSubmit={handleCreate}
 
@@ -269,7 +278,7 @@ export default function Devices(){
                     <p className="md:col-span-5 text-red-400 text-sm">{error}</p>
                 )}
 
-            </form>
+            </form>}
 
 
             <div className="
@@ -311,7 +320,7 @@ export default function Devices(){
                                 <td className="p-4 text-cyan-300">{device.type}</td>
                                 <td className="p-4">{device.ipAddress}</td>
                                 <td className="p-4">
-                                    <button
+                                    {isAdmin ? <button
                                         onClick={() => { if(window.confirm(`Change ingestion status for ${device.name}?`)) handleToggleStatus(device); }}
                                         className={
                                             device.status === "ACTIVE"
@@ -320,7 +329,7 @@ export default function Devices(){
                                         }
                                     >
                                         {device.status}
-                                    </button>
+                                    </button> : <span className={device.status === "ACTIVE" ? "text-green-400" : "text-gray-500"}>{device.status}</span>}
                                 </td>
                                 <td className="p-4 text-sm text-gray-400">
                                     {device.lastHeartbeat
@@ -328,12 +337,12 @@ export default function Devices(){
                                         : "Never"}
                                 </td>
                                 <td className="p-4">
-                                    <button
+                                    {isAdmin && <button
                                         onClick={() => { if(window.confirm(`Regenerate the API key for ${device.name}? The existing collector key will stop working until updated.`)) handleRegenerate(device.id); }}
                                         className="text-cyan-400 hover:text-cyan-300 text-sm"
                                     >
                                         Regenerate Key
-                                    </button>
+                                    </button>}
                                 </td>
                             </tr>
                         ))}
