@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import api from "../services/api.js";
 import { saveToken } from "../auth/auth";
 
@@ -115,6 +115,7 @@ export default function Login() {
             {error && <div className="siem-error" role="alert">{error}</div>}
             <button className="siem-submit" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in to console →"}</button>
           </form>
+          <p style={{textAlign:"center",color:"#9eafc8",fontSize:14,marginTop:20}}>New to Enterprise SIEM? <Link to="/register" style={{color:"#71dce5",fontWeight:700}}>Create account</Link></p>
           <div className="siem-auth-bottom"><strong>Restricted system.</strong> Access is limited to authorised users. Account access is managed by your SIEM administrator.</div>
         </div>
       </section>
