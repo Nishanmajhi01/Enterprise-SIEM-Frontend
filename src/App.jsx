@@ -19,6 +19,7 @@ import IOC from "./pages/IOC";
 import Playbooks from "./pages/Playbooks";
 import Devices from "./pages/Devices";
 import Users from "./pages/Users";
+import ChangePassword from "./pages/ChangePassword";
 
 
 
@@ -346,6 +347,7 @@ element={
 
 
 <Route path="/users" element={<ProtectedLayout><Users /></ProtectedLayout>} />
+<Route path="/change-password" element={<ProtectedLayout><ChangePassword /></ProtectedLayout>} />
 
 {/* UNKNOWN ROUTE */}
 
