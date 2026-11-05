@@ -4,7 +4,7 @@ import api from "../services/api";
 const KEY = "siem.workspaceId";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export default function WorkspaceSelector() {
+export default function WorkspaceSelector({ onRoleChange }) {
   const [workspaces, setWorkspaces] = useState([]);
   const [selected, setSelected] = useState(localStorage.getItem(KEY) || "");
   const [error, setError] = useState("");
@@ -23,10 +23,11 @@ export default function WorkspaceSelector() {
         if (next) localStorage.setItem(KEY, next);
         else localStorage.removeItem(KEY);
         setSelected(next);
+        onRoleChange?.(list.find(w => w.id === next)?.role || null);
         setError("");
       })
       .catch(() => {
-        if (active) setError("Workspace list unavailable");
+        if (active) { setError("Workspace list unavailable"); onRoleChange?.(null); }
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
