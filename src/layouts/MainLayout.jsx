@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { getSessionRole } from "../auth/sessionRole";
 import WorkspaceSelector from "../components/WorkspaceSelector";
 
 const groups = [
@@ -56,8 +55,8 @@ const css = `
 `;
 export default function MainLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const role = getSessionRole();
-  const visibleGroups = groups.map(group => ({ ...group, links: group.links.filter(([name]) => role === "ADMIN" || !["Playbooks", "Log Sources", "Users"].includes(name) || (role === "ANALYST" && name === "Playbooks")) })).filter(group => group.links.length);
+  const [role, setRole] = useState(null);
+  const visibleGroups = groups.map(group => ({ ...group, links: group.links.filter(([name]) => role === "ADMIN" || !["Playbooks", "Users"].includes(name) || (role === "ANALYST" && name === "Playbooks")) })).filter(group => group.links.length);
   const location = useLocation();
   const navigate = useNavigate();
   const page = visibleGroups.flatMap(group => group.links).find(([,path]) => location.pathname === path || (path === "/incidents" && location.pathname.startsWith("/incidents/")));
@@ -70,7 +69,7 @@ export default function MainLayout({ children }) {
       <div className="soc-sidebar-foot">SIEM Operations Console · v1.0</div>
     </aside>
     <div className="soc-main-wrap">
-      <header className="soc-topbar"><div style={{display:"flex",alignItems:"center",gap:12}}><button className="soc-mobile-toggle" aria-label="Toggle navigation" onClick={()=>setMenuOpen(v=>!v)}>☰</button><div><div className="soc-topbar-title">{page?.[0] || "Investigation Workspace"}</div><div className="soc-topbar-sub">Security operations / {page?.[0] || "Investigation"}</div></div></div><div className="soc-topbar-right"><WorkspaceSelector /><span className="soc-environment">● {role || "SOC"} Workspace</span><button className="soc-signout" onClick={signOut}>Sign out ↗</button></div></header>
+      <header className="soc-topbar"><div style={{display:"flex",alignItems:"center",gap:12}}><button className="soc-mobile-toggle" aria-label="Toggle navigation" onClick={()=>setMenuOpen(v=>!v)}>☰</button><div><div className="soc-topbar-title">{page?.[0] || "Investigation Workspace"}</div><div className="soc-topbar-sub">Security operations / {page?.[0] || "Investigation"}</div></div></div><div className="soc-topbar-right"><WorkspaceSelector onRoleChange={setRole} /><span className="soc-environment">● {role || "SOC"} Workspace</span><button className="soc-signout" onClick={signOut}>Sign out ↗</button></div></header>
       <main className="soc-main">{children}</main>
     </div>
   </div>;
