@@ -33,6 +33,10 @@ export default function Users() {
       setError("Passwords do not match.");
       return;
     }
+    if (new TextEncoder().encode(form.password).length > 72) {
+      setError("Password must be at most 72 UTF-8 bytes.");
+      return;
+    }
     setBusy(true); setError(""); setNotice("");
     try {
       await api.post("/auth/workspace-members", form);
