@@ -17,6 +17,7 @@ import AcceptInvitation from "./pages/AcceptInvitation";
 import { ForgotPassword, ResetPassword } from "./pages/PasswordRecovery";
 import Alerts from "./pages/Alerts";
 import Incidents from "./pages/Incident";
+import AssignmentWorkspace from "./pages/AssignmentWorkspace";
 import ThreatIntel from "./pages/ThreatIntel";
 import IncidentDetails from "./pages/IncidentDetails";
 import IOC from "./pages/IOC";
@@ -207,6 +208,8 @@ element={
 
 
 
+
+<Route path="/my-incidents" element={<ProtectedLayout><AssignmentWorkspace /></ProtectedLayout>} />
 
 {/* INCIDENT LIST */}
 
