@@ -36,7 +36,13 @@ export default function IncidentDetails() {
   const [containAction, setContainAction] = useState("");
   const [target, setTarget] = useState("");
 
-  const isClosed = incident?.status === "CLOSED";
+  const status = String(incident?.status || "").toUpperCase();
+  const isClosed = status === "CLOSED";
+  const isFinalized = status === "RESOLVED" || isClosed;
+  const canInvestigate = status === "OPEN";
+  const canContain = status === "INVESTIGATING";
+  const canResolve = status === "CONTAINED";
+  const assignedMember = assignableMembers.find(m => String(m.id) === String(incident?.assignedTo ?? incident?.assignedToId ?? incident?.assignedUserId ?? incident?.assignedUser?.id ?? ""));
 
   // ==========================================
   // LOAD INCIDENT DETAILS
@@ -70,7 +76,7 @@ export default function IncidentDetails() {
 
   const updateStatus = async (status) => {
     if (!canManage) return;
-    if (isClosed) return;
+    if (!canInvestigate) return;
 
     try {
       await api.put(`/incidents/${id}`, {
@@ -93,7 +99,7 @@ export default function IncidentDetails() {
 
   const assignIncident = async () => {
     if (!canManage) return;
-    if (isClosed) return;
+    if (isFinalized) return;
 
     if (!assignedUser.trim()) {
       alert("Please select an active analyst or administrator.");
@@ -123,7 +129,7 @@ export default function IncidentDetails() {
 
   const containIncident = async () => {
     if (!canManage) return;
-    if (isClosed) return;
+    if (!canContain) return;
 
     if (!containAction || !target.trim()) {
       alert("Please select an action and enter a target.");
@@ -164,7 +170,7 @@ export default function IncidentDetails() {
 
   const manualContainIncident = async () => {
     if (!canManage) return;
-    if (incident?.status !== "INVESTIGATING") {
+    if (!canContain) {
       alert("Manual containment requires an INVESTIGATING incident.");
       return;
     }
@@ -223,7 +229,7 @@ export default function IncidentDetails() {
 
   const resolveIncident = async () => {
     if (!canManage) return;
-    if (incident?.status !== "CONTAINED") {
+    if (!canResolve) {
       alert("Incident must be CONTAINED before resolution.");
       return;
     }
@@ -359,10 +365,10 @@ export default function IncidentDetails() {
             RESOLUTION AND CLOSURE
         ================================== */}
 
-        {(incident.resolutionNote ||
+        {(isFinalized && (incident.resolutionNote ||
           incident.closureNote ||
           incident.closedAt ||
-          incident.closedBy != null) && (
+          incident.closedBy != null)) && (
 
           <div className="mt-6 border-t border-white/20 pt-5">
 
@@ -418,7 +424,7 @@ export default function IncidentDetails() {
             INCIDENT LIFECYCLE ACTIONS
         ================================== */}
 
-        {canManage && !isClosed && (
+        {canManage && !isFinalized && (
 
           <div className="mt-6 border-t border-white/20 pt-5">
 
@@ -430,7 +436,8 @@ export default function IncidentDetails() {
 
               <button
                 type="button"
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"
+                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled={!canInvestigate}
                 onClick={() =>
                   updateStatus("INVESTIGATING")
                 }
@@ -441,7 +448,7 @@ export default function IncidentDetails() {
               <button
                 type="button"
                 className="bg-yellow-600 hover:bg-yellow-700 px-4 py-2 rounded text-white disabled:opacity-40"
-                disabled={incident.status !== "INVESTIGATING"}
+                disabled={!canContain}
                 onClick={manualContainIncident}
               >
                 Record Manual Containment
@@ -450,7 +457,7 @@ export default function IncidentDetails() {
               <button
                 type="button"
                 className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-white disabled:opacity-40 disabled:cursor-not-allowed"
-                disabled={incident.status !== "CONTAINED"}
+                disabled={!canResolve}
                 onClick={resolveIncident}
               >
                 Resolve
@@ -459,6 +466,12 @@ export default function IncidentDetails() {
             </div>
 
             {/* ASSIGN INCIDENT */}
+            <p className="mt-5 text-sm text-gray-300">
+              <strong>Assigned to:</strong>{" "}
+              {assignedMember
+                ? assignedMember.username + " (" + assignedMember.email + ") — " + assignedMember.role
+                : incident.assignedUser?.username || incident.assignedToName || (incident.assignedTo || incident.assignedToId || incident.assignedUserId ? "User ID " + (incident.assignedTo || incident.assignedToId || incident.assignedUserId) : "Unassigned")}
+            </p>
 
             <div className="mt-5 flex flex-wrap gap-3">
 
@@ -474,6 +487,7 @@ export default function IncidentDetails() {
               <button
                 type="button"
                 className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white"
+                disabled={!assignedUser}
                 onClick={assignIncident}
               >
                 Assign
@@ -486,15 +500,15 @@ export default function IncidentDetails() {
 
         {/* CLOSED INCIDENT MESSAGE */}
 
-        {isClosed && (
+        {isFinalized && (
           <div className="mt-6 p-4 rounded-lg bg-green-900/20 border border-green-500/30">
 
             <p className="text-green-300 font-semibold">
-              Incident Closed
+              {isClosed ? "Incident Closed" : "Incident Resolved"}
             </p>
 
             <p className="text-gray-400 text-sm mt-1">
-              This incident has completed its lifecycle.
+              {isClosed ? "This incident has completed its lifecycle." : "This incident has been resolved."}
               Investigation and response controls are
               unavailable for this closed case.
             </p>
@@ -682,9 +696,14 @@ export default function IncidentDetails() {
 
                 <p className="text-gray-400 text-sm mt-1">
                   Performed By:{" "}
-                  {item.user || "SYSTEM"}
+                  {item.user || item.performedBy || item.actor?.username || "SYSTEM"}
                 </p>
 
+                {item.action === "INCIDENT_ASSIGNED" && (
+                  <p className="text-gray-300 text-sm mt-1">
+                    Assigned to: {item.changes?.assignedTo?.username || item.changes?.assignedTo?.to || item.details?.username || item.details?.assignedTo || item.assignedTo || "Not included in event"}
+                  </p>
+                )}
                 {item.changes?.status?.from && item.changes?.status?.to && (
                   <p className="text-gray-300 text-sm mt-1">
                     Status changed: {item.changes.status.from} → {item.changes.status.to}
