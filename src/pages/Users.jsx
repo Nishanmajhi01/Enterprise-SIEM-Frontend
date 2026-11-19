@@ -3,6 +3,7 @@ import api from "../services/api";
 
 export default function Users() {
   const [members, setMembers] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const [authorized, setAuthorized] = useState(false);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("ANALYST");
@@ -57,9 +58,9 @@ export default function Users() {
       <p style={{fontSize:12,color:"#8da4bc",marginTop:15}}>Invitation links expire after 48 hours and can be used once. New members choose their own password. Until a sending domain is verified in Resend, invitations to other addresses may fail.</p>
     </section>}
     {authorized && <section style={{padding:22,background:"#101b2b",border:"1px solid #293c55",borderRadius:12}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:15}}><h2 style={{fontSize:18}}>Workspace members ({members.length})</h2><button onClick={load} style={{background:"#17263a",color:"white",border:"1px solid #344760",borderRadius:8,padding:"9px 14px"}}>Refresh</button></div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:15}}><h2 style={{fontSize:18}}>Workspace members ({members.length})</h2><label>Status <select aria-label="Filter members by status" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} style={{background:"#17263a",color:"white",padding:8,marginLeft:8,borderRadius:8}}><option value="ALL">All</option><option value="ACTIVE">Active</option><option value="INACTIVE">Inactive</option><option value="PENDING">Pending</option><option value="SUSPENDED">Suspended</option></select></label><button onClick={load} style={{background:"#17263a",color:"white",border:"1px solid #344760",borderRadius:8,padding:"9px 14px"}}>Refresh</button></div>
       <div style={{overflowX:"auto"}}><table><thead><tr><th>Username</th><th>Email</th><th>Workspace role</th><th>Status</th></tr></thead><tbody>
-        {members.map(m=><tr key={m.membershipId}><td>{m.user?.username}</td><td>{m.user?.email}</td><td>{m.role}</td><td>{m.status}</td></tr>)}
+        {members.filter(m=>statusFilter==="ALL" || m.status===statusFilter).map(m=><tr key={m.membershipId}><td>{m.user?.username}</td><td>{m.user?.email}</td><td>{m.role}</td><td style={{color:m.status==="ACTIVE"?"#8de0bd":"#fbbf85"}}>{m.status}</td></tr>)}
       </tbody></table></div>
     </section>}
   </div>;
