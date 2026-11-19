@@ -22,6 +22,17 @@ export default function IncidentDetails() {
   const [error, setError] = useState("");
 
   const [assignedUser, setAssignedUser] = useState("");
+  const [assignableMembers, setAssignableMembers] = useState([]);
+  const [memberError, setMemberError] = useState("");
+  useEffect(() => {
+    let active = true;
+    api.get("/auth/assignable-members").then(({ data }) => {
+      if (active) setAssignableMembers(data.members || []);
+    }).catch(err => {
+      if (active) setMemberError(err.response?.data?.message || "Unable to load eligible members.");
+    });
+    return () => { active = false; };
+  }, []);
   const [containAction, setContainAction] = useState("");
   const [target, setTarget] = useState("");
 
@@ -85,14 +96,14 @@ export default function IncidentDetails() {
     if (isClosed) return;
 
     if (!assignedUser.trim()) {
-      alert("Please enter an analyst user ID.");
+      alert("Please select an active analyst or administrator.");
       return;
     }
 
     try {
       await api.patch(`/incidents/${id}/assign`, {
         userId: assignedUser,
-        username: "SOC_ANALYST",
+        username: assignableMembers.find(m => String(m.id) === assignedUser)?.username || "",
       });
 
       await loadIncident();
@@ -451,17 +462,15 @@ export default function IncidentDetails() {
 
             <div className="mt-5 flex flex-wrap gap-3">
 
-              <input
-                type="number"
-                min="1"
+              <select aria-label="Assign to workspace member"
                 className="bg-black border border-white/20 p-2 rounded text-white"
-                placeholder="Analyst User ID"
-                value={assignedUser}
-                onChange={(e) =>
-                  setAssignedUser(e.target.value)
-                }
-              />
-
+                value={assignedUser} onChange={e => setAssignedUser(e.target.value)}>
+                <option value="">Select active analyst or admin</option>
+                {assignableMembers.map(m => <option key={m.id} value={m.id}>
+                  {m.username} ({m.email}) — {m.role}
+                </option>)}
+              </select>
+              {memberError && <p role="alert" className="text-red-300">{memberError}</p>}
               <button
                 type="button"
                 className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded text-white"
