@@ -15,6 +15,8 @@ export default function Incidents(){
  const load=useCallback(async()=>{try{const res=await api.get("/incidents");setItems(Array.isArray(res.data)?res.data:(res.data.incidents||[]));setError("");}catch(e){setError(e.response?.data?.message||"Unable to load incidents.");}finally{setLoading(false);}},[]);
  useEffect(()=>{load();const handler = (incident) => {
     if (!incident?.id) return;
+    const workspaceId = localStorage.getItem("siem.workspaceId");
+    if (!workspaceId || incident.workspaceId !== workspaceId) return;
 
     setItems((prev) => {
         const exists = prev.some(
@@ -31,7 +33,7 @@ export default function Incidents(){
                 : item
         );
     });
-};socket.on("security-incident",handler);return()=>socket.off("security-incident",handler);},[load]);
+};const onReconnect=()=>load();socket.on("security-incident",handler);socket.on("connect",onReconnect);return()=>{socket.off("security-incident",handler);socket.off("connect",onReconnect);};},[load]);
  const filtered=useMemo(()=>items.filter(i=>(severity==="ALL"||i.severity===severity)&&(status==="ALL"||i.status===status)&&[i.title,i.sourceIP,i.attackType,i.id].some(v=>String(v??"").toLowerCase().includes(search.toLowerCase()))&&matchesDateFilter(i.createdAt,dateMode,singleDate,startDate,endDate)),[items,search,severity,status,dateMode,singleDate,startDate,endDate]);
  const cards=[["Total Incidents",items.length],["Open",items.filter(i=>i.status==="OPEN").length],["Investigating",items.filter(i=>i.status==="INVESTIGATING").length],["Contained",items.filter(i=>i.status==="CONTAINED").length]];
  return <div style={{display:"grid",gap:22}}><header><div style={{fontSize:11,letterSpacing:2,color:"#6dd9e0",fontWeight:800}}>RESPONSE / INCIDENT MANAGEMENT</div><h1 style={{margin:"12px 0 8px"}}>Incident Management</h1><p style={{color:"#90a5be",fontSize:13}}>Investigate detections, track containment and review evidence.</p></header>
