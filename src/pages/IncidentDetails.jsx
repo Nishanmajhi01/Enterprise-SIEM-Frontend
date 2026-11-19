@@ -696,7 +696,7 @@ export default function IncidentDetails() {
 
                 <p className="text-gray-400 text-sm mt-1">
                   Performed By:{" "}
-                  {item.user || item.performedBy || item.actor?.username || "SYSTEM"}
+                  {item.user || item.assignedBy || item.performedBy || item.actor?.username || "SYSTEM"}
                 </p>
 
                 {item.action === "INCIDENT_ASSIGNED" && (
