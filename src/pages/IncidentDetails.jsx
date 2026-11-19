@@ -676,13 +676,37 @@ export default function IncidentDetails() {
                   {item.user || "SYSTEM"}
                 </p>
 
-                {(item.timestamp || item.createdAt) && (
-                  <p className="text-gray-500 text-xs mt-1">
-                    {new Date(
-                      item.timestamp || item.createdAt
-                    ).toLocaleString()}
+                {item.changes?.status?.from && item.changes?.status?.to && (
+                  <p className="text-gray-300 text-sm mt-1">
+                    Status changed: {item.changes.status.from} → {item.changes.status.to}
                   </p>
                 )}
+
+                {(() => {
+                  const rawTime = item.time || item.timestamp || item.createdAt;
+                  if (!rawTime) return (
+                    <p className="text-gray-500 text-xs mt-1">Time not recorded</p>
+                  );
+                  const eventDate = new Date(rawTime);
+                  if (Number.isNaN(eventDate.getTime())) return (
+                    <p className="text-gray-500 text-xs mt-1">Invalid event timestamp</p>
+                  );
+                  return (
+                    <p className="text-gray-400 text-xs mt-1">
+                      {new Intl.DateTimeFormat("en-AU", {
+                        timeZone: "Australia/Sydney",
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: true,
+                        timeZoneName: "short"
+                      }).format(eventDate)}
+                    </p>
+                  );
+                })()}
 
               </div>
 
