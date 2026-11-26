@@ -82,7 +82,7 @@ export default function Login() {
     <main className="siem-login">
       <style>{styles}</style>
       <section className="siem-showcase" aria-label="Platform overview">
-        <div className="siem-brand"><span className="siem-logo" aria-hidden="true">◇</span> ENTERPRISE SIEM</div>
+        <div className="siem-brand"><span className="siem-logo" aria-hidden="true">◇</span> NEXUS SIEM</div>
         <div>
           <p className="siem-eyebrow">Security Operations Platform</p>
           <h1>Clarity across your <span>security operations.</span></h1>
@@ -93,7 +93,7 @@ export default function Login() {
             <span className="siem-feature">Response orchestration</span>
           </div>
         </div>
-        <div className="siem-foot">ENTERPRISE SIEM · AUTHORISED ACCESS ONLY</div>
+        <div className="siem-foot">NEXUS SIEM · AUTHORISED ACCESS ONLY</div>
       </section>
       <section className="siem-auth-side" aria-label="Sign in">
         <div className="siem-auth-panel">
@@ -116,7 +116,7 @@ export default function Login() {
             <button className="siem-submit" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in to console →"}</button>
           </form>
           <p style={{textAlign:"center",color:"#9eafc8",fontSize:14,marginTop:20}}><Link to="/forgot-password" style={{color:"#71dce5",fontWeight:700}}>Forgot password?</Link></p>
-          <p style={{textAlign:"center",color:"#9eafc8",fontSize:14,marginTop:20}}>New to Enterprise SIEM? <Link to="/register" style={{color:"#71dce5",fontWeight:700}}>Create account</Link></p>
+          <p style={{textAlign:"center",color:"#9eafc8",fontSize:14,marginTop:20}}>New to Nexus SIEM? <Link to="/register" style={{color:"#71dce5",fontWeight:700}}>Create account</Link></p>
           <div className="siem-auth-bottom"><strong>Restricted system.</strong> Access is limited to authorised users. Account access is managed by your SIEM administrator.</div>
         </div>
       </section>
