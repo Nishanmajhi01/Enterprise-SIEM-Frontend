@@ -27,7 +27,7 @@ export default function VerifyEmail() {
 
   return <main style={{ minHeight:"100vh",display:"grid",placeItems:"center",background:"#080d19",color:"#edf5ff",fontFamily:"system-ui",padding:24 }}>
     <section style={{maxWidth:480,width:"100%",background:"#101b30",padding:32,borderRadius:16,border:"1px solid #30465d"}}>
-      <p style={{color:"#65d7dc",fontWeight:800}}>ENTERPRISE SIEM</p>
+      <p style={{color:"#65d7dc",fontWeight:800}}>NEXUS SIEM</p>
       <h1>Email verification</h1>
       <p role="status" style={{color:error?"#ffb8be":"#c4d5e8",lineHeight:1.6}}>{status}</p>
       <Link to="/login" style={{color:"#65d7dc"}}>Go to sign in</Link>
