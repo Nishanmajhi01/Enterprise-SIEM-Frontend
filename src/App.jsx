@@ -10,6 +10,7 @@ import MainLayout from "./layouts/MainLayout";
 
 
 import Dashboard from "./pages/Dashboard";
+import Reports from "./pages/Reports";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
@@ -180,6 +181,8 @@ element={
 
 
 
+
+<Route path="/reports" element={<ProtectedLayout><Reports /></ProtectedLayout>} />
 
 {/* ALERTS */}
 
