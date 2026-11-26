@@ -28,7 +28,7 @@ text-cyan-400
 mb-10
 ">
 
-⚡ SIEM
+⚡ Nexus SIEM
 
 </h1>
 
