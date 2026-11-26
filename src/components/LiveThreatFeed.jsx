@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import useRecentAlerts from "./useRecentAlerts";
 import { Link } from "react-router-dom";
 import socket from "../services/socket";
 const tones={CRITICAL:"#ff687d",HIGH:"#f6a56b",MEDIUM:"#e7c16d",LOW:"#5ed0bb"};
 export default function LiveThreatFeed(){
- const [items,setItems]=useState([]),[expanded,setExpanded]=useState({});
- useEffect(()=>{const handle=a=>{if(a?.workspaceId!==localStorage.getItem("siem.workspaceId"))return;setItems(old=>[{...a,receivedAt:new Date().toISOString()},...old].slice(0,40));};socket.on("security-alert",handle);return()=>socket.off("security-alert",handle);},[]);
+ const items=useRecentAlerts(20),[expanded,setExpanded]=useState({});
  return <div style={{display:"grid",gap:12}}>
  <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"#91a5bf"}}><span>NETWORK & DETECTION ACTIVITY</span><span>{items.length} recent</span></div>
  <div style={{maxHeight:470,overflowY:"auto",paddingRight:4}}>
