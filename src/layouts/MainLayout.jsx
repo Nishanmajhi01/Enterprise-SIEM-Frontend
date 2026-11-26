@@ -86,7 +86,7 @@ export default function MainLayout({ children }) {
     <style>{css}</style>
     {menuOpen && <button className="soc-backdrop" aria-label="Close navigation" onClick={()=>setMenuOpen(false)} />}
     <aside className={`soc-sidebar ${menuOpen ? "open" : ""}`}>
-      <div className="soc-brand"><span className="soc-brand-icon">◇</span><div><div className="soc-brand-name">ENTERPRISE SIEM</div><div className="soc-brand-sub">SECURITY OPERATIONS</div></div></div>
+      <div className="soc-brand"><span className="soc-brand-icon">◇</span><div><div className="soc-brand-name">NEXUS SIEM</div><div className="soc-brand-sub">SECURITY OPERATIONS</div></div></div>
       <nav className="soc-menu" aria-label="Main navigation">{visibleGroups.map(group=><div className="soc-group" key={group.title}><div className="soc-group-title">{group.title}</div>{group.links.map(([name,path,icon])=><NavLink key={path} to={path} onClick={()=>setMenuOpen(false)} className={({isActive})=>`soc-nav-link ${isActive ? "active" : ""}`}><span className="soc-nav-icon" aria-hidden="true">{icon}</span>{name}</NavLink>)}</div>)}</nav>
       <div className="soc-sidebar-foot">SIEM Operations Console · v1.0</div>
     </aside>
