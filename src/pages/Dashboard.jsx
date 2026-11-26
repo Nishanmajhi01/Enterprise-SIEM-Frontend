@@ -11,6 +11,22 @@ export default function Dashboard(){
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [lastUpdated,setLastUpdated]=useState(null);
+  const [filters,setFilters]=useState({from:"",to:"",attackType:"",severity:"",status:""});
+  const [downloading,setDownloading]=useState(false);
+  const [reportError,setReportError]=useState("");
+  async function downloadReport(){
+    setReportError("");
+    if(filters.from && filters.to && filters.from>filters.to){setReportError("Start date must precede end date.");return;}
+    setDownloading(true);
+    try{
+      const params=Object.fromEntries(Object.entries(filters).filter(([,v])=>v));
+      const res=await api.get("/dashboard/report/pdf",{params,responseType:"blob",timeout:60000});
+      if(!res.headers["content-type"]?.includes("application/pdf")) throw new Error("Invalid PDF response");
+      const url=URL.createObjectURL(res.data);
+      const a=document.createElement("a");a.href=url;a.download="siem-security-report.pdf";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    }catch(err){setReportError(err.response?.status===403?"Only administrators and analysts can download reports.":"Report download failed. Check backend connection and permissions.");}
+    finally{setDownloading(false);}
+  }
   const load=useCallback(async()=>{
     try{
       const res=await api.get("/dashboard");
@@ -33,6 +49,16 @@ export default function Dashboard(){
       <div><div style={{color:"#70d8d8",fontSize:11,letterSpacing:2,fontWeight:800,marginBottom:10}}>SECURITY OPERATIONS / OVERVIEW</div><h1 style={{margin:0}}>Security Overview</h1><p style={{color:"#92a4bc",fontSize:13,marginTop:9}}>Operational metrics and live security telemetry from the connected SIEM backend.</p></div>
       <button onClick={load} style={{background:"#153949",color:"#8ee6e8",border:"1px solid #286879",padding:"11px 16px",borderRadius:8,cursor:"pointer"}}>↻ Refresh data</button>
     </div>
+    <section style={panel}>
+      <h2 style={{fontSize:16,margin:"0 0 8px"}}>Security Reports</h2>
+      <p style={{color:"#92a4bc",fontSize:13}}>Download workspace incident details and alert statistics. Dates use UTC.</p>
+      <div style={{display:"flex",flexWrap:"wrap",gap:12,alignItems:"end"}}>
+        {[["from","From"],["to","To"]].map(([key,name])=><label key={key} style={label}>{name}<input type="date" value={filters[key]} onChange={e=>setFilters(f=>({...f,[key]:e.target.value}))} style={{display:"block",marginTop:6,padding:8,colorScheme:"dark"}}/></label>)}
+        {[["attackType","Threat type",Array.from(new Set((stats?.attackTypes||[]).map(x=>x.attackType).filter(Boolean)))],["severity","Severity",["LOW","MEDIUM","HIGH","CRITICAL"]],["status","Incident status",["OPEN","ACKNOWLEDGED","INVESTIGATING","CONTAINED","RESOLVED","CLOSED"]]].map(([key,name,options])=><label key={key} style={label}>{name}<select value={filters[key]} onChange={e=>setFilters(f=>({...f,[key]:e.target.value}))} style={{display:"block",marginTop:6,padding:8,colorScheme:"dark"}}><option value="">All</option>{options.map(v=><option key={v} value={v}>{v.replaceAll("_"," ")}</option>)}</select></label>)}
+        <button disabled={downloading} onClick={downloadReport} style={{background:"#153949",color:"#8ee6e8",border:"1px solid #286879",padding:"11px 16px",borderRadius:8,cursor:downloading?"wait":"pointer"}}>{downloading?"Generating…":"Download PDF Report"}</button>
+      </div>
+      {reportError&&<p role="alert" style={{color:"#ffd0d4"}}>{reportError}</p>}
+    </section>
     {error&&<div role="alert" style={{border:"1px solid #84424b",background:"#3b1e29",color:"#ffd0d4",borderRadius:8,padding:14}}>{error} {stats&&"Showing the last successfully loaded values."}</div>}
     <div style={{display:"flex",gap:12,alignItems:"center",flexWrap:"wrap",color:"#8298b2",fontSize:12}}><span style={{color:error?"#f6b5b8":"#86dfd2"}}>● {error?"Backend connection issue":stats?"Backend data loaded":"Connecting"}</span><span>·</span><span>Last updated: {lastUpdated?lastUpdated.toLocaleTimeString():"Not yet available"}</span><span>·</span><span>Auto-refresh: 30 seconds</span></div>
     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(175px,1fr))",gap:14}}>{cards.map(([name,value])=><div key={name} style={panel}><div style={label}>{name}</div><div style={{fontSize:32,fontWeight:780,letterSpacing:"-.04em",marginTop:13,color:name==="Open Incidents"?"#f4bd86":"#eaf4ff"}}>{loading?"…":value??"—"}</div><div style={{fontSize:11,color:"#69839e",marginTop:10}}>Backend metric</div></div>)}</div>
