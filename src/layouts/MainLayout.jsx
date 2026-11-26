@@ -4,7 +4,7 @@ import WorkspaceSelector from "../components/WorkspaceSelector";
 import { AssignmentBell } from "../pages/AssignmentWorkspace";
 
 const groups = [
-  { title: "MONITOR", links: [["Overview", "/dashboard", "◫"], ["Alert Center", "/alerts", "◉"], ["Incidents", "/incidents", "▤"], ["My Assigned Incidents", "/my-incidents", "▣"]] },
+  { title: "MONITOR", links: [["Overview", "/dashboard", "◫"], ["Alert Center", "/alerts", "◉"], ["Incidents", "/incidents", "▤"], ["Reports", "/reports", "▧"], ["My Assigned Incidents", "/my-incidents", "▣"]] },
   { title: "INTELLIGENCE", links: [["Threat Intelligence", "/threat-intel", "◎"], ["IOC Database", "/ioc", "◇"]] },
   { title: "RESPONSE & ADMIN", links: [["Playbooks", "/playbooks", "⚙"], ["Log Sources", "/devices", "▣"], ["Users", "/users", "♙"]] }
 ];
@@ -57,7 +57,7 @@ const css = `
 export default function MainLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [role, setRole] = useState(null);
-  const visibleGroups = groups.map(group => ({ ...group, links: group.links.filter(([name]) => role === "ADMIN" || !["Playbooks", "Users"].includes(name) || (role === "ANALYST" && name === "Playbooks")) })).filter(group => group.links.length);
+  const visibleGroups = groups.map(group => ({ ...group, links: group.links.filter(([name]) => name === "Reports" ? ["ADMIN","ANALYST"].includes(role) : role === "ADMIN" || !["Playbooks", "Users"].includes(name) || (role === "ANALYST" && name === "Playbooks")) })).filter(group => group.links.length);
   const location = useLocation();
   const navigate = useNavigate();
   const page = visibleGroups.flatMap(group => group.links).find(([,path]) => location.pathname === path || (path === "/incidents" && location.pathname.startsWith("/incidents/")));
@@ -71,7 +71,7 @@ export default function MainLayout({ children }) {
     </aside>
     <div className="soc-main-wrap">
       <header className="soc-topbar"><div style={{display:"flex",alignItems:"center",gap:12}}><button className="soc-mobile-toggle" aria-label="Toggle navigation" onClick={()=>setMenuOpen(v=>!v)}>☰</button><div><div className="soc-topbar-title">{page?.[0] || "Investigation Workspace"}</div><div className="soc-topbar-sub">Security operations / {page?.[0] || "Investigation"}</div></div></div><div className="soc-topbar-right"><WorkspaceSelector onRoleChange={setRole} /><AssignmentBell /><button className="soc-signout" onClick={()=>navigate("/change-password")}>Password</button><span className="soc-environment">● {role || "SOC"} Workspace</span><button className="soc-signout" onClick={signOut}>Sign out ↗</button></div></header>
-      <main className="soc-main">{children}</main>
+      <main className="soc-main">{location.pathname === "/reports" && !["ADMIN","ANALYST"].includes(role) ? <p role="status">{role ? "Access denied. Reports are available to administrators and analysts only." : "Select a workspace or wait for permissions to load."}</p> : children}</main>
     </div>
   </div>;
 }
