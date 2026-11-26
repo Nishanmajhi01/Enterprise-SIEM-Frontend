@@ -46,7 +46,7 @@ export default function Register() {
   if (verificationSent) return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"#080d19",color:"#edf5ff",fontFamily:"system-ui",padding:24}}><section style={{maxWidth:480,background:"#101b30",padding:32,borderRadius:16}}><h1>Check your email</h1><p>We sent a verification link to your email address. Open the link to activate your account before signing in.</p><Link to="/login" style={{color:"#65d7dc"}}>Go to sign in</Link></section></main>;
   return <main style={{ minHeight: "100vh", background: "radial-gradient(circle at 10% 15%,#193451,#080d19 65%)", color: "#edf5ff", fontFamily: "Inter,system-ui,sans-serif", display: "grid", placeItems: "center", padding: 24 }}>
     <section style={{ width: "100%", maxWidth: 490, background: "#0d1729", border: "1px solid #29425c", borderRadius: 18, padding: "32px", boxSizing: "border-box" }}>
-      <div style={{ color: "#6edce3", letterSpacing: 2, fontSize: 12, fontWeight: 800 }}>◇ ENTERPRISE SIEM</div>
+      <div style={{ color: "#6edce3", letterSpacing: 2, fontSize: 12, fontWeight: 800 }}>◇ NEXUS SIEM</div>
       <h1 style={{ fontSize: 31, marginBottom: 8 }}>Create your workspace</h1>
       <p style={{ color: "#9bb1ca", lineHeight: 1.6, fontSize: 14 }}>Set up a secure SOC workspace for yourself or your organisation.</p>
       <form onSubmit={submit}>
