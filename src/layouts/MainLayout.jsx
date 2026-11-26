@@ -53,6 +53,26 @@ const css = `
 .soc-main input,.soc-main select{color-scheme:dark}
 .soc-mobile-toggle{display:none;background:#17263a;border:1px solid #33465e;border-radius:8px;color:#fff;padding:9px 12px}
 @media(max-width:900px){.soc-sidebar{position:fixed;transform:translateX(-100%);transition:transform .2s}.soc-sidebar.open{transform:translateX(0)}.soc-mobile-toggle{display:block}.soc-topbar{height:66px}.soc-environment{display:none}.soc-main{padding:20px}}
+.soc-shell{width:100%;max-width:100%;align-items:flex-start}
+.soc-sidebar{flex-shrink:0;left:auto;right:auto}
+.soc-main-wrap{width:0;flex:1 1 0;min-width:0;overflow:hidden}
+.soc-topbar{height:auto;min-height:74px;flex-wrap:wrap;padding-top:12px;padding-bottom:12px}
+.soc-topbar-right{flex-wrap:wrap;min-width:0;gap:10px}
+.soc-topbar-right select{max-width:100%!important;min-width:0!important}
+.soc-main{width:100%;min-width:0}
+.soc-main>div{width:100%;min-width:0}
+.soc-main section{min-width:0;max-width:100%}
+.soc-menu{scrollbar-width:thin;scrollbar-color:#344760 transparent}
+@media(max-width:1100px){
+.soc-sidebar{position:fixed;left:0;top:0;width:min(280px,85vw);height:100dvh;transform:translateX(-105%);visibility:hidden;transition:transform .2s,visibility .2s}
+.soc-sidebar.open{transform:translateX(0);visibility:visible}
+.soc-mobile-toggle{display:block}
+.soc-main-wrap{width:100%;flex:1 1 100%}
+.soc-topbar{padding:12px 18px}
+.soc-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:29;border:0;width:100%;height:100%}
+}
+@media(min-width:1101px){.soc-backdrop{display:none}}
+@media(max-width:600px){.soc-topbar-right{width:100%}.soc-main{padding:16px}.soc-topbar-right>label{max-width:100%;flex-wrap:wrap}}
 `;
 export default function MainLayout({ children }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -64,6 +84,7 @@ export default function MainLayout({ children }) {
   function signOut(){ localStorage.removeItem("token"); localStorage.removeItem("siem.workspaceId"); navigate("/login",{replace:true}); }
   return <div className="soc-shell">
     <style>{css}</style>
+    {menuOpen && <button className="soc-backdrop" aria-label="Close navigation" onClick={()=>setMenuOpen(false)} />}
     <aside className={`soc-sidebar ${menuOpen ? "open" : ""}`}>
       <div className="soc-brand"><span className="soc-brand-icon">◇</span><div><div className="soc-brand-name">ENTERPRISE SIEM</div><div className="soc-brand-sub">SECURITY OPERATIONS</div></div></div>
       <nav className="soc-menu" aria-label="Main navigation">{visibleGroups.map(group=><div className="soc-group" key={group.title}><div className="soc-group-title">{group.title}</div>{group.links.map(([name,path,icon])=><NavLink key={path} to={path} onClick={()=>setMenuOpen(false)} className={({isActive})=>`soc-nav-link ${isActive ? "active" : ""}`}><span className="soc-nav-icon" aria-hidden="true">{icon}</span>{name}</NavLink>)}</div>)}</nav>
