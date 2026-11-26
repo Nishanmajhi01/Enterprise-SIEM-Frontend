@@ -33,7 +33,7 @@ export default function AcceptInvitation() {
   const field = {width:"100%",boxSizing:"border-box",padding:12,background:"#17263a",border:"1px solid #425775",borderRadius:8,color:"white",marginTop:6};
   return <main style={{minHeight:"100vh",display:"grid",placeItems:"center",background:"#080d19",color:"#edf5ff",fontFamily:"system-ui",padding:24}}>
     <section style={{maxWidth:480,width:"100%",background:"#101b30",padding:32,borderRadius:16,border:"1px solid #30465d"}}>
-      <p style={{color:"#65d7dc",fontWeight:800}}>ENTERPRISE SIEM</p>
+      <p style={{color:"#65d7dc",fontWeight:800}}>NEXUS SIEM</p>
       <h1>Accept workspace invitation</h1>
       {!valid ? <p role="alert">This invitation link is invalid.</p> :
         <form onSubmit={accept}>
