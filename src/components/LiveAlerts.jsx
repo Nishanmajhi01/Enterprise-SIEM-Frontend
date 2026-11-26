@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import useRecentAlerts from "./useRecentAlerts";
 import { Link } from "react-router-dom";
 import socket from "../services/socket";
 const tones={CRITICAL:"#ff687d",HIGH:"#f6a56b",MEDIUM:"#e7c16d",LOW:"#5ed0bb"};
 const fmt=v=>v?new Date(v).toLocaleTimeString("en-AU",{hour:"2-digit",minute:"2-digit",second:"2-digit",timeZone:"Australia/Sydney"}):new Date().toLocaleTimeString("en-AU",{hour:"2-digit",minute:"2-digit",second:"2-digit",timeZone:"Australia/Sydney"});
 export default function LiveAlerts(){
- const [items,setItems]=useState([]);
- useEffect(()=>{const handle=a=>{if(a?.workspaceId!==localStorage.getItem("siem.workspaceId"))return;setItems(old=>[{...a,receivedAt:new Date().toISOString()},...old].slice(0,30));};socket.on("security-alert",handle);return()=>socket.off("security-alert",handle);},[]);
+ const items=useRecentAlerts(20);
  return <div style={{display:"grid",gap:12}}>
  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:11,color:"#91a5bf"}}><span><span style={{color:socket.connected?"#65d5b6":"#e4b56c"}}>●</span> {socket.connected?"Monitoring live events":"Awaiting live connection"}</span><span>{items.length} recent</span></div>
  <div aria-live="polite" style={{display:"grid",gap:8,maxHeight:470,overflowY:"auto",paddingRight:4}}>
